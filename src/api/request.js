@@ -1,0 +1,32 @@
+// 导入axios
+import axios from 'axios';
+
+export function request(config) {
+    const install = axios.create({
+      baseURL: "https://netease-cloud-music-api-delta-seven-10.vercel.app/",
+      withCredentials: true
+      // timeout:3000,
+    });
+    // 防止走缓存，给每次请求添加时间戳
+    install.interceptors.request.use(
+      (config) => {
+        if (config.method === "post") {
+          config.data = {
+            ...config.data,
+            _timestamp: Date.parse(new Date()) / 1000
+          };
+        } else if (config.method === "get") {
+          config.params = {
+            ...config.params,
+            _timestamp: Date.parse(new Date()) / 1000
+          };
+        }
+        return config;
+      },
+      (error) => {
+        console.log(error);
+        return Promise.reject(error);
+      }
+    );
+    return install(config);
+  }
